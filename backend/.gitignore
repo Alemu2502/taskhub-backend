@@ -8,7 +8,7 @@ package-lock.json
 .env.production
 .env.*.local
 
-.gitkeep
+
 
 # Logs
 logs/
