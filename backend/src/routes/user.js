@@ -1,5 +1,5 @@
 import express from 'express';
-import { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats } from '../controllers/userController.js';
+import { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats, getReferrals} from '../controllers/userController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -31,5 +31,7 @@ router.post('/withdraw', requestWithdrawal);
 // @desc    Get withdrawal history
 // @access  Private
 router.get('/withdrawals', getWithdrawals);
+
+router.get('/referrals', protect, getReferrals);
 
 export default router;

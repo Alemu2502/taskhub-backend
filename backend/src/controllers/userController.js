@@ -3,7 +3,6 @@ import Withdrawal from '../models/withdrawal.js';
 import { sendWithdrawalRequestEmail, sendWithdrawalCompletedEmail } from '../utils/sendEmail.js';
 import Application from '../models/application.js';
 
-
 // // Returns all wallet and job stats for the logged-in user
 
 export const getUserStats = async (req, res) => {
@@ -233,4 +232,26 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-export default { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats };
+// In your /api/user/referrals backend controller
+export const  getReferrals = async (req, res) => {
+  try {
+    console.log('getReferrals called, req.user:', req.user);
+    const currentUser = await User.findById(req.user._id);
+    console.log('Database User:', currentUser);
+    console.log('User\'s referralCode:', currentUser.referralCode);
+
+    const referrals = await User.find({ referredBy: currentUser.referralCode });
+    console.log('Referrals found in DB:', referrals);
+
+    return res.status(200).json({
+      success: true,
+      data: referrals
+    });
+  } catch (err) {
+    console.error('getReferrals error:', err);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+export default { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats, getReferrals};

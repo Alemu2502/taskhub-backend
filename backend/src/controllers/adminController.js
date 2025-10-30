@@ -1,8 +1,30 @@
 import User from '../models/user.js';
-import Job from '../models/job.js';
+import Job from '../models/Job.js';
 import Application from '../models/application.js';
 import Withdrawal from '../models/withdrawal.js';
 import { sendJobAddedNotification, sendWithdrawalCompletedEmail } from '../utils/sendEmail.js'; // import the template sender
+
+
+
+const handleReferralPayout = async (userId) => {
+  const user = await User.findById(userId);
+  if (
+    user &&
+    user.referredBy &&
+    !user.referralBonusPaid &&
+    user.isVerified &&
+    (user.wallet?.totalEarned ?? 0) >= 0.01
+  ) {
+    const referrer = await User.findOne({ referralCode: user.referredBy });
+    if (referrer) {
+      referrer.wallet.balance += 0.01;
+      referrer.wallet.totalEarned += 0.01;
+      await referrer.save();
+    }
+    user.referralBonusPaid = true;
+    await user.save();
+  }
+};
 
 
 export const createJob = async (req, res) => {
@@ -209,6 +231,62 @@ export const getApplications = async (req, res) => {
  * @route   PUT /api/admin/applications/:id
  * @access  Private/Admin
  */
+// export const reviewApplication = async (req, res) => {
+//   try {
+//     const { status, adminNote } = req.body;
+
+//     if (!status || !['approved', 'rejected'].includes(status)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid status. Use "approved" or "rejected"',
+//       });
+//     }
+
+//     const application = await Application.findById(req.params.id).populate('user');
+
+//     if (!application) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Application not found',
+//       });
+//     }
+
+//     if (application.status !== 'pending') {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'This application has already been reviewed',
+//       });
+//     }
+
+//     // Update application
+//     application.status = status;
+//     application.reviewedBy = req.user.id;
+//     application.reviewedAt = new Date();
+//     application.adminNote = adminNote || '';
+//     await application.save();
+
+//     // If approved, add reward to user wallet
+//     if (status === 'approved') {
+//       const user = await User.findById(application.user._id);
+//       user.wallet.balance += application.reward;
+//       user.wallet.totalEarned += application.reward;
+//       await user.save();
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: `Application ${status} successfully`,
+//       data: application,
+//     });
+//   } catch (error) {
+//     console.error('Review application error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//     });
+//   }
+// };
+
 export const reviewApplication = async (req, res) => {
   try {
     const { status, adminNote } = req.body;
@@ -243,12 +321,15 @@ export const reviewApplication = async (req, res) => {
     application.adminNote = adminNote || '';
     await application.save();
 
-    // If approved, add reward to user wallet
+    // If approved, add reward to user wallet and trigger referral payout
     if (status === 'approved') {
       const user = await User.findById(application.user._id);
       user.wallet.balance += application.reward;
       user.wallet.totalEarned += application.reward;
       await user.save();
+
+      // Add this line for referral bonus (AFTER user wallet is updated)
+      await handleReferralPayout(user._id);
     }
 
     res.status(200).json({
@@ -264,6 +345,7 @@ export const reviewApplication = async (req, res) => {
     });
   }
 };
+
 
 /**
  * @desc    Get all withdrawal requests (Admin only)

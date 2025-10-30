@@ -24,6 +24,8 @@ import { startUnverifiedUserCleanup } from "./controllers/autoCleanUnverifiedUse
 
 
 
+
+
 // Load environment variables
 dotenv.config();
 
@@ -65,6 +67,13 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/admin/blogs', adminBlogsRouter);
 app.use('/api/blogs', blogsRouter);
+
+console.log("\nALL ROUTES:");
+app._router.stack.forEach(function(r){
+  if (r.route && r.route.path){
+    console.log(r.route.path);
+  }
+});
 
 // Health check route
 app.get('/health', (req, res) => {
