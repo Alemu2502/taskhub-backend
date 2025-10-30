@@ -8,9 +8,7 @@ package-lock.json
 .env.production
 .env.*.local
 
-# Uploads (user submitted files)
-uploads/*
-!uploads/.gitkeep
+.gitkeep
 
 # Logs
 logs/
