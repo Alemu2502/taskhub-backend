@@ -44,8 +44,8 @@ router.post('/forgot-password', async (req, res) => {
 
   // Email content
   const htmlContent = `
-    <h2>Hello ${user.username || ''},</h2>
-    <p>We received a request to reset your TaskHub password. Click the button below to set a new password:</p>
+    <h2>Hello ${user.fullName || ''},</h2>
+    <p>We received a request to reset your TaskHub password. Click the button below to set a new password. <b>This link will expire after 1 hour.</b> </p>
     <p style="text-align:center;"><a href="${resetLink}" style="background:#235eaa;color:#fff;padding:12px 28px;text-decoration:none;border-radius:6px;display:inline-block;">Reset Password</a></p>
     <p>If you didn't request this, please ignore this email.</p>
     <p>Regards,<br/>TaskHub Team</p>

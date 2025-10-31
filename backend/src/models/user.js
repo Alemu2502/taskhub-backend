@@ -1,6 +1,17 @@
 // import mongoose from 'mongoose';
 // import bcrypt from 'bcrypt';
 
+// // --- Numeric Referral Code Generator ---
+// async function generateUniqueNumericCode(model, length = 7) {
+//   let code, exists;
+//   do {
+//     code = Math.floor(Math.pow(10, length-1) + Math.random() * 9 * Math.pow(10, length-1)).toString();
+//     exists = await model.findOne({ referralCode: code });
+//   } while (exists);
+//   return code;
+// }
+
+// // --- User Schema ---
 // const userSchema = new mongoose.Schema({
 //   fullName: {
 //     type: String,
@@ -27,11 +38,7 @@
 //     minlength: [8, 'Password must be at least 8 characters'],
 //     select: false,
 //   },
-//   country: {
-//     type: String,
-//     required: [true, 'Country is required'],
-//     trim: true,
-//   },
+//   country: { type: String, required: [true, 'Country is required'], trim: true },
 //   mobile: {
 //     type: String,
 //     required: [true, 'Mobile number is required. This must be your Telebirr number if using Telebirr.'],
@@ -62,14 +69,49 @@
 //   banReason: String,
 //   registrationIP: String,
 //   lastLoginIP: String,
+
+//   // --- Referral System ---
+//   // 7-digit numeric referral code, guaranteed unique!
+//   referralCode: {
+//     type: String,
+//     unique: true,
+//     required: true
+//   },
+//   referredBy: { type: String, default: null }, // stores referralCode of inviter
+//   referralBonusPaid: { type: Boolean, default: false }
+//   // -----------------------
 // }, { timestamps: true });
 
+// // Generate unique numeric code before save/validation
+// // Retry referral code until success or 5 attempts
+// userSchema.pre('validate', async function (next) {
+//   if (this.referralCode) return next();
+//   let code, exists, tries = 0;
+//   const maxTries = 5;
+//   do {
+//     code = Math.floor(Math.pow(10, 6) + Math.random() * 9 * Math.pow(10, 6)).toString();
+//     exists = await mongoose.models.User.findOne({ referralCode: code });
+//     tries++;
+//   } while (exists && tries < maxTries);
+
+//   if (exists) {
+//     // Extremely rare case: couldn't find a unique code after several attempts
+//     return next(new Error("Could not generate a unique referral code, please try again."));
+//   }
+//   this.referralCode = code;
+//   next();
+// });
+
+
+// // --- Wallet Initializer ---
 // userSchema.pre('save', function (next) {
 //   if (!this.wallet || Object.keys(this.wallet).length === 0) {
 //     this.wallet = { balance: 0, totalEarned: 0, totalWithdrawn: 0 };
 //   }
 //   next();
 // });
+
+// // --- Password Hashing ---
 // userSchema.pre('save', async function (next) {
 //   if (!this.isModified('password')) return next();
 //   try {
@@ -88,6 +130,7 @@
 //     next(error);
 //   }
 // });
+
 // userSchema.methods.comparePassword = async function (candidatePassword) {
 //   try {
 //     return await bcrypt.compare(candidatePassword, this.password);
@@ -95,6 +138,7 @@
 //     return false;
 //   }
 // };
+
 // const User = mongoose.model('User', userSchema);
 // export default User;
 
@@ -170,6 +214,10 @@ const userSchema = new mongoose.Schema({
   registrationIP: String,
   lastLoginIP: String,
 
+  // --- IMPORTANT: Add these lines! ---
+  resetToken: { type: String },             // <--- Add this line
+  resetTokenExpires: { type: Date },        // <--- And this line
+
   // --- Referral System ---
   // 7-digit numeric referral code, guaranteed unique!
   referralCode: {
@@ -183,7 +231,6 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Generate unique numeric code before save/validation
-// Retry referral code until success or 5 attempts
 userSchema.pre('validate', async function (next) {
   if (this.referralCode) return next();
   let code, exists, tries = 0;
@@ -195,13 +242,12 @@ userSchema.pre('validate', async function (next) {
   } while (exists && tries < maxTries);
 
   if (exists) {
-    // Extremely rare case: couldn't find a unique code after several attempts
+    // Extremely rare case: couldn't find a unique referral code after several attempts
     return next(new Error("Could not generate a unique referral code, please try again."));
   }
   this.referralCode = code;
   next();
 });
-
 
 // --- Wallet Initializer ---
 userSchema.pre('save', function (next) {
