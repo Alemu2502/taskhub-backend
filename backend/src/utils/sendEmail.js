@@ -221,7 +221,7 @@ export const sendWithdrawalRequestEmail = async (userEmail, fullName, amount, me
           
           <p><strong>Method:</strong> ${method === 'bep20' ? 'BEP20 Crypto' : method === 'telebirr' ? 'Telebirr' : 'CBE Bank'}</p>
           
-          <p>Processing typically takes 1-2 business days. You'll receive another email once your withdrawal is completed.</p>
+          <p>Processing typically takes up to 24 hours. You'll receive another email once your withdrawal is completed.</p>
           
           <p>Thank you for using TaskHub!</p>
           <p><strong>The TaskHub Team</strong></p>
@@ -291,9 +291,7 @@ export const sendWithdrawalCompletedEmail = async (userEmail, fullName, amount, 
 
 export const sendJobAddedNotification = async (job, recipient) => {
   const isDev = process.env.NODE_ENV !== 'production';
-  const BASE_URL = isDev
-    ? (process.env.DEV_FRONTEND_URL || 'http://localhost:3000')
-    : (process.env.FRONTEND_URL || 'https://taskhub.com');
+  const BASE_URL =process.env.FRONTEND_URL
 
   const subject = `💼 New Job Available on TaskHub`;
   const jobUrl = `${BASE_URL}/jobs/${job._id}`;
