@@ -16,8 +16,7 @@ import contactRoute from './routes/contact.js';
 import authRouter from './routes/auth.js';
 import { publicRouter as blogsRouter, adminRouter as adminBlogsRouter } from './routes/blogs.js';
 import { startUnverifiedUserCleanup } from "./controllers/autoCleanUnverifiedUsers.js";
-
-
+import notificationsRouter from "./routes/notification.js";
 
 
 
@@ -67,7 +66,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/admin/blogs', adminBlogsRouter);
 app.use('/api/blogs', blogsRouter);
-
+app.use("/api/notifications", notificationsRouter);
 console.log("\nALL ROUTES:");
 app._router.stack.forEach(function(r){
   if (r.route && r.route.path){
