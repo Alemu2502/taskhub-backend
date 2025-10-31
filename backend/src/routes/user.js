@@ -1,6 +1,7 @@
 import express from 'express';
 import { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats, getReferrals} from '../controllers/userController.js';
 import { protect } from '../middleware/auth.js';
+import User from '../models/user.js';
 
 const router = express.Router();
 
@@ -33,5 +34,14 @@ router.post('/withdraw', requestWithdrawal);
 router.get('/withdrawals', getWithdrawals);
 
 router.get('/referrals', protect, getReferrals);
+
+// GET /api/user  (admin only)
+router.get('/', async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Admins only.' });
+  }
+  const users = await User.find();
+  res.json(users);
+});
 
 export default router;
