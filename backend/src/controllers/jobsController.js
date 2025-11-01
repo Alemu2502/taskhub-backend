@@ -136,7 +136,7 @@ export const getMyApplications = async (req, res) => {
   .limit(parseInt(limit))
   .populate({
     path: 'job',
-    select: 'title platform reward createdBy createdAt', // <-- Add createdAt to select!
+    select: 'title platform reward createdBy createdAt', 
     populate: { path: 'createdBy', select: 'fullName' }
   })
   .populate('reviewedBy', 'fullName');
