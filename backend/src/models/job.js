@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const jobSchema = new mongoose.Schema(
   {
     title: { type: String, required: [true, 'Job title is required'], trim: true },
-    reward: { type: Number, required: [true, 'Reward amount is required'], min: [0.01, 'Reward must be at least $0.01'] },
+    reward: { type: Number, required: [true, 'Reward amount is required'], min: [0, 'Reward must be at least $0'] },
     platform: { type: String, required: [true, 'Platform is required'], enum: ['youtube', 'tiktok', 'instagram', 'facebook', 'twitter', 'telegram', 'other'] },
     totalSlots: { type: Number, required: [true, 'Total slots is required'], min: [1, 'Must have at least 1 slot'] },
     filledSlots: { type: Number, default: 0 },
