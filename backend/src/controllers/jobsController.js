@@ -123,23 +123,23 @@ export const getMyApplications = async (req, res) => {
     const filter = { user: req.user.id };
     if (status) filter.status = status;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    // const applications = await Application.find(filter)
-    //   .sort({ createdAt: -1 })
-    //   .skip(skip)
-    //   .limit(parseInt(limit))
-    //   .populate('job', 'title platform reward')
-    //   .populate('reviewedBy', 'fullName');
-      
     const applications = await Application.find(filter)
-  .sort({ createdAt: -1 })
-  .skip(skip)
-  .limit(parseInt(limit))
-  .populate({
-    path: 'job',
-    select: 'title platform reward createdBy createdAt', // <-- Add createdAt to select!
-    populate: { path: 'createdBy', select: 'fullName' }
-  })
-  .populate('reviewedBy', 'fullName');
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('job', 'title platform reward')
+      .populate('reviewedBy', 'fullName');
+      
+  //   const applications = await Application.find(filter)
+  // .sort({ createdAt: -1 })
+  // .skip(skip)
+  // .limit(parseInt(limit))
+  // .populate({
+  //   path: 'job',
+  //   select: 'title platform reward createdBy createdAt', // <-- Add createdAt to select!
+  //   populate: { path: 'createdBy', select: 'fullName' }
+  // })
+  // .populate('reviewedBy', 'fullName');
 
     const total = await Application.countDocuments(filter);
     res.status(200).json({
