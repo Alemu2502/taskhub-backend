@@ -1,6 +1,6 @@
 import User from '../models/user.js';
 import Withdrawal from '../models/withdrawal.js';
-import { sendWithdrawalRequestEmail, sendWithdrawalCompletedEmail } from '../utils/sendEmail.js';
+import { sendWithdrawalRequestEmail } from '../utils/sendEmail.js';
 import Application from '../models/application.js';
 
 // // Returns all wallet and job stats for the logged-in user
@@ -252,6 +252,8 @@ export const  getReferrals = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+
 
 
 export default { getWallet, requestWithdrawal, getWithdrawals, getProfile, updateProfile, getUserStats, getReferrals};

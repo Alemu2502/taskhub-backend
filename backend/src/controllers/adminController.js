@@ -2,7 +2,7 @@ import User from '../models/user.js';
 import Job from '../models/job.js';
 import Application from '../models/application.js';
 import Withdrawal from '../models/withdrawal.js';
-import { sendJobAddedNotification, sendWithdrawalCompletedEmail } from '../utils/sendEmail.js'; // import the template sender
+import { sendJobAddedNotification, sendWithdrawalCompletedEmail, sendWithdrawalRejectedEmail } from '../utils/sendEmail.js'; // import the template sender
 
 
 
@@ -226,66 +226,6 @@ export const getApplications = async (req, res) => {
   }
 };
 
-/**
- * @desc    Review application (Approve/Reject)
- * @route   PUT /api/admin/applications/:id
- * @access  Private/Admin
- */
-// export const reviewApplication = async (req, res) => {
-//   try {
-//     const { status, adminNote } = req.body;
-
-//     if (!status || !['approved', 'rejected'].includes(status)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Invalid status. Use "approved" or "rejected"',
-//       });
-//     }
-
-//     const application = await Application.findById(req.params.id).populate('user');
-
-//     if (!application) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Application not found',
-//       });
-//     }
-
-//     if (application.status !== 'pending') {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'This application has already been reviewed',
-//       });
-//     }
-
-//     // Update application
-//     application.status = status;
-//     application.reviewedBy = req.user.id;
-//     application.reviewedAt = new Date();
-//     application.adminNote = adminNote || '';
-//     await application.save();
-
-//     // If approved, add reward to user wallet
-//     if (status === 'approved') {
-//       const user = await User.findById(application.user._id);
-//       user.wallet.balance += application.reward;
-//       user.wallet.totalEarned += application.reward;
-//       await user.save();
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       message: `Application ${status} successfully`,
-//       data: application,
-//     });
-//   } catch (error) {
-//     console.error('Review application error:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Server error',
-//     });
-//   }
-// };
 
 export const reviewApplication = async (req, res) => {
   try {
@@ -455,6 +395,50 @@ export const processWithdrawal = async (req, res) => {
     });
   } catch (error) {
     console.error('Process withdrawal error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+};
+
+
+export const rejectWithdrawal = async (req, res) => {
+  try {
+    const { reason } = req.body; // Optional reason from admin
+    const withdrawalId = req.params.id;
+
+    const withdrawal = await Withdrawal.findById(withdrawalId).populate('user');
+
+    if (!withdrawal) {
+      return res.status(404).json({ success: false, message: 'Withdrawal not found.' });
+    }
+
+    if (withdrawal.status === 'rejected') {
+      return res.status(400).json({ success: false, message: 'Withdrawal already rejected.' });
+    }
+
+    withdrawal.status = 'rejected';
+    await withdrawal.save();
+
+    const user = withdrawal.user;
+    sendWithdrawalRejectedEmail(
+      user.email,
+      user.fullName,
+      withdrawal.amount,
+      withdrawal.method,
+      reason
+    ).catch((err) => {
+      console.error('Failed to send withdrawal rejection email:', err.message);
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Withdrawal rejected and user notified by email.',
+      data: withdrawal,
+    });
+  } catch (error) {
+    console.error('Reject withdrawal error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error',

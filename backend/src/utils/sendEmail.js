@@ -374,5 +374,60 @@ export const sendJobAddedNotification = async (job, recipient) => {
   return await sendEmail(recipient, subject, htmlContent);
 };
 
+/**
+ * Send withdrawal rejection email
+ */
+export const sendWithdrawalRejectedEmail = async (userEmail, fullName, amount, method, reason) => {
+  const subject = 'Withdrawal Request Rejected';
+
+  const displayAmount = Number(amount);
+
+  const reasonText = reason?.trim()
+    ? reason
+    : "Your withdrawal did not meet our compliance requirements. Please review your account and contact support if you believe this is an error.";
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #e74c3c; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+        .amount { font-size: 32px; font-weight: bold; color: #e74c3c; text-align: center; margin: 20px 0; }
+        .reason { background: #ffeaea; border-left: 4px solid #e74c3c; padding: 16px; border-radius: 6px; margin: 22px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Withdrawal Request Rejected</h1>
+        </div>
+        <div class="content">
+          <h2>Hi ${fullName},</h2>
+          <p>Your withdrawal request could not be processed and has been <strong>rejected</strong>.</p>
+          <div class="amount">$${isNaN(displayAmount) ? amount : displayAmount.toFixed(2)}</div>
+          <p><strong>Method:</strong> ${method === 'bep20' ? 'BEP20 Crypto' : method === 'telebirr' ? 'Telebirr' : 'CBE Bank'}</p>
+          <div class="reason">
+            <strong>Reason:</strong> ${reasonText}
+          </div>
+          <p>Please review your withdrawal details and try again. If you believe this is an error, contact our support team.</p>
+          <p>Thank you for using TaskHub!</p>
+          <p><strong>The TaskHub Team</strong></p>
+        </div>
+        <div class="footer">
+          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return await sendEmail(userEmail, subject, htmlContent);
+};
+
 
 export default sendEmail;

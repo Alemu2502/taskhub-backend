@@ -7,6 +7,7 @@ import {
   reviewApplication,
   getWithdrawalRequests,
   processWithdrawal,
+  rejectWithdrawal,
   getDashboardStats,
   banUser,
   getAllJobs,
@@ -42,7 +43,7 @@ router.put('/applications/:id', reviewApplication);
 // Withdrawal Management
 router.get('/withdrawals', getWithdrawalRequests);
 router.put('/withdrawals/:id', processWithdrawal);
-
+router.post('/withdrawals/:id/reject', rejectWithdrawal);
 // User Management
 router.put('/users/:id/ban', banUser);
 
