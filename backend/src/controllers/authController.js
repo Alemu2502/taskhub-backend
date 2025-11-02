@@ -4,94 +4,7 @@ import { verifyRecaptcha } from '../utils/recaptcha.js';
 import { getClientIP, checkDuplicateAccount, checkRegistrationRateLimit, logSuspiciousActivity } from '../utils/ipTracker.js';
 import { sendVerificationEmail, sendWelcomeEmail } from '../utils/sendEmail.js';
 
-/**
- * @desc    Register new user
- * @route   POST /api/auth/register
- * @access  Public
- */
 
-// export const register = async (req, res) => {
-//   try {
-//     const { fullName, email, password, country, mobile, recaptchaToken } = req.body;
-
-//     // Validate required fields
-//     if (!fullName || !email || !password || !country || !mobile) {
-//       return res.status(400).json({
-//         success: false,
-//         message: 'Please provide all required fields',
-//       });
-//     }
-
-//     // Unique email/mobile check
-//     const existingUser = await User.findOne({ $or: [{ email: email.toLowerCase() }, { mobile }] });
-//     if (existingUser) {
-//       if (existingUser.email === email.toLowerCase()) {
-//         return res.status(400).json({ success: false, message: 'Email already exists' });
-//       }
-//       if (existingUser.mobile === mobile) {
-//         return res.status(400).json({ success: false, message: 'Mobile number already exists' });
-//       }
-//     }
-
-//     // Rest of your recaptcha, IP, rate-limit, duplicateCheck...
-//     if (!recaptchaToken) {
-//       return res.status(400).json({ success: false, message: 'reCAPTCHA verification required' });
-//     }
-//     const recaptchaResult = await verifyRecaptcha(recaptchaToken);
-//     if (!recaptchaResult.success) {
-//       await logSuspiciousActivity('FAILED_RECAPTCHA', { email, score: recaptchaResult.score, ip: getClientIP(req) });
-//       return res.status(400).json({ success: false, message: recaptchaResult.message });
-//     }
-//     const clientIP = getClientIP(req);
-//     const rateLimitCheck = checkRegistrationRateLimit(clientIP);
-//     if (!rateLimitCheck.allowed) {
-//       return res.status(429).json({ success: false, message: rateLimitCheck.message, retryAfter: rateLimitCheck.retryAfter });
-//     }
-//     const duplicateCheck = await checkDuplicateAccount(email, clientIP);
-//     if (duplicateCheck.isDuplicate) {
-//       await logSuspiciousActivity('DUPLICATE_ACCOUNT_ATTEMPT', { email, ip: clientIP, reason: duplicateCheck.reason });
-//       return res.status(400).json({ success: false, message: duplicateCheck.reason });
-//     }
-
-//     // Create user
-//     const user = await User.create({ fullName, email: email.toLowerCase(), password, country, mobile, registrationIP: clientIP });
-
-//     // Generate verification token
-//     const crypto = await import('crypto');
-//     const verificationToken = crypto.randomBytes(32).toString('hex');
-//     user.verificationToken = verificationToken;
-//     user.verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-//     await user.save();
-
-//     sendVerificationEmail(user.email, user.fullName, verificationToken).catch(() => {});
-
-//     const token = generateToken(user._id);
-//     res.status(201).json({
-//       success: true,
-//       message: 'Registration successful! Please check your email to verify your account.',
-//       data: {
-//         token,
-//         user: {
-//           id: user._id,
-//           fullName: user.fullName,
-//           email: user.email,
-//           role: user.role,
-//           isVerified: user.isVerified,
-//         },
-//       },
-//     });
-//   } catch (error) {
-//     if (error.code === 11000) {
-//       const field = Object.keys(error.keyPattern)[0];
-//       return res.status(400).json({ success: false, message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists` });
-//     }
-//     if (error.name === 'ValidationError') {
-//       const messages = Object.values(error.errors).map((err) => err.message);
-//       return res.status(400).json({ success: false, message: messages[0] });
-//     }
-//     res.status(500).json({ success: false, message: 'Server error during registration' });
-//   }
-// };
 export const register = async (req, res) => {
   try {
     // Add referralCode to destructure from body
@@ -224,7 +137,7 @@ export const login = async (req, res) => {
 
     console.log('✅ User found:', {
       id: user._id,
-      username: user.username,
+      fullName: user.fullName,
       email: user.email,
       isVerified: user.isVerified,
       isBanned: user.isBanned,
@@ -279,7 +192,7 @@ export const login = async (req, res) => {
     // Send welcome email on first login if not sent before
     if (isFirstLogin) {
       console.log('📨 Sending welcome email (first login)...');
-      sendWelcomeEmail(user.email, user.username).catch((err) => {
+      sendWelcomeEmail(user.email, user.fullName).catch((err) => {
         console.error('❌ Failed to send welcome email:', err.message);
       });
     }
@@ -296,7 +209,7 @@ export const login = async (req, res) => {
         token,
         user: {
           id: user._id,
-          username: user.username,
+          fullName: user.fullName,
           email: user.email,
           role: user.role,
           wallet: user.wallet,
@@ -309,7 +222,7 @@ export const login = async (req, res) => {
       success: responseData.success,
       message: responseData.message,
       userId: responseData.data.user.id,
-      username: responseData.data.user.username,
+      fullName: responseData.data.user.fullName,
     });
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 

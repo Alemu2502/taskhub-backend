@@ -53,7 +53,7 @@ export const sendEmail = async (to, subject, htmlContent) => {
  */
 export const sendVerificationEmail = async (userEmail, fullName, verificationToken) => {
   const verificationUrl = `${process.env.FRONTEND_URL}/auth/verify-email?token=${verificationToken}`;
-  const subject = 'Verify Your Email Address - TaskHub';
+  const subject = 'Verify Your Email Address - UseTaskHub';
   
   const htmlContent = `
     <!DOCTYPE html>
