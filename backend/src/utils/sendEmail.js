@@ -21,7 +21,7 @@ export const sendEmail = async (to, subject, htmlContent) => {
       },
       data: {
         sender: {
-          name: process.env.BREVO_SENDER_NAME || 'TaskHub',
+          name: process.env.BREVO_SENDER_NAME || 'UseTaskHub',
           email: process.env.BREVO_SENDER_EMAIL
         },
         to: [
@@ -72,12 +72,12 @@ export const sendVerificationEmail = async (userEmail, fullName, verificationTok
     <body>
       <div class="container">
         <div class="header">
-          <h1>🎉 Welcome to TaskHub!</h1>
+          <h1>🎉 Welcome to UseTaskHub!</h1>
         </div>
         <div class="content">
           <h2>Hi ${fullName}! 👋</h2>
-          <p>Thank you for registering with TaskHub! We're excited to have you on board.</p>
-          
+          <p>Thank you for registering with UseTaskHub! We're excited to have you on board.</p>
+
           <p>Before you can start earning money by completing tasks, please verify your email address by clicking the button below:</p>
           
           <p style="text-align: center;">
@@ -101,12 +101,12 @@ export const sendVerificationEmail = async (userEmail, fullName, verificationTok
             <li>✅ Withdraw anytime (BEP20, Telebirr, CBE Bank)</li>
           </ul>
           
-          <p>If you didn't create an account with TaskHub, please ignore this email.</p>
-          
-          <p><strong>The TaskHub Team</strong></p>
+          <p>If you didn't create an account with UseTaskHub, please ignore this email.</p>
+
+          <p><strong>The UseTaskHub Team</strong></p>
         </div>
         <div class="footer">
-          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>© 2025 UseTaskHub. All rights reserved.</p>
           <p>This is an automated message. Please do not reply to this email.</p>
         </div>
       </div>
@@ -121,7 +121,7 @@ export const sendVerificationEmail = async (userEmail, fullName, verificationTok
  * Send welcome email to verified user (SENT SECOND - AFTER EMAIL VERIFICATION)
  */
 export const sendWelcomeEmail = async (userEmail, fullName) => {
-  const subject = 'Welcome to TaskHub! 🎉 Your Account is Verified';
+  const subject = 'Welcome to UseTaskHub! 🎉 Your Account is Verified';
   
   const htmlContent = `
     <!DOCTYPE html>
@@ -148,8 +148,8 @@ export const sendWelcomeEmail = async (userEmail, fullName) => {
           </div>
           
           <h2>Hi ${fullName}! 👋</h2>
-          <p>Congratulations! Your email has been verified and your TaskHub account is now fully active.</p>
-          
+          <p>Congratulations! Your email has been verified and your UseTaskHub account is now fully active.</p>
+
           <h3>🚀 Start Earning Now:</h3>
           <ul>
             <li>✅ Browse available jobs</li>
@@ -172,10 +172,10 @@ export const sendWelcomeEmail = async (userEmail, fullName) => {
           <p>If you have any questions, feel free to contact our support team.</p>
           
           <p>Happy earning! 💰</p>
-          <p><strong>The TaskHub Team</strong></p>
+          <p><strong>The UseTaskHub Team</strong></p>
         </div>
         <div class="footer">
-          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>© 2025 UseTaskHub. All rights reserved.</p>
           <p>This is an automated message. Please do not reply to this email.</p>
         </div>
       </div>
@@ -223,11 +223,11 @@ export const sendWithdrawalRequestEmail = async (userEmail, fullName, amount, me
           
           <p>Processing typically takes up to 24 hours. You'll receive another email once your withdrawal is completed.</p>
           
-          <p>Thank you for using TaskHub!</p>
-          <p><strong>The TaskHub Team</strong></p>
+          <p>Thank you for using UseTaskHub!</p>
+          <p><strong>The UseTaskHub Team</strong></p>
         </div>
         <div class="footer">
-          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>© 2025 UseTaskHub. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -274,11 +274,11 @@ export const sendWithdrawalCompletedEmail = async (userEmail, fullName, amount, 
           
           <p>If you have any concerns or did not receive your funds, please contact support.</p>
           
-          <p>Thank you for using TaskHub!</p>
-          <p><strong>The TaskHub Team</strong></p>
+          <p>Thank you for using UseTaskHub!</p>
+          <p><strong>The UseTaskHub Team</strong></p>
         </div>
         <div class="footer">
-          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>© 2025 UseTaskHub. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -293,7 +293,7 @@ export const sendJobAddedNotification = async (job, recipient) => {
   const isDev = process.env.NODE_ENV !== 'production';
   const BASE_URL =process.env.FRONTEND_URL
 
-  const subject = `💼 New Job Available on TaskHub`;
+  const subject = `💼 New Job Available on UseTaskHub`;
   const jobUrl = `${BASE_URL}/jobs/${job._id}`;
   const viewAllUrl = `${BASE_URL}/jobs`;
 
@@ -363,8 +363,8 @@ export const sendJobAddedNotification = async (job, recipient) => {
         </div>
       </div>
       <div class="footer">
-        TaskHub – Your gateway to new earning opportunities.<br/>
-        &copy; ${new Date().getFullYear()} TaskHub. All rights reserved.
+        UseTaskHub – Your gateway to new earning opportunities.<br/>
+        &copy; ${new Date().getFullYear()} UseTaskHub. All rights reserved.
       </div>
     </div>
   </body>
@@ -414,11 +414,11 @@ export const sendWithdrawalRejectedEmail = async (userEmail, fullName, amount, m
             <strong>Reason:</strong> ${reasonText}
           </div>
           <p>Please review your withdrawal details and try again. If you believe this is an error, contact our support team.</p>
-          <p>Thank you for using TaskHub!</p>
-          <p><strong>The TaskHub Team</strong></p>
+          <p>Thank you for using UseTaskHub!</p>
+          <p><strong>The UseTaskHub Team</strong></p>
         </div>
         <div class="footer">
-          <p>© 2025 TaskHub. All rights reserved.</p>
+          <p>© 2025 UseTaskHub. All rights reserved.</p>
           <p>This is an automated message. Please do not reply to this email.</p>
         </div>
       </div>
