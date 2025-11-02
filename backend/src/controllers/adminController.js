@@ -330,9 +330,81 @@ export const getWithdrawalRequests = async (req, res) => {
 };
 
 
+// export const processWithdrawal = async (req, res) => {
+//   try {
+//     const { status, adminNote, transactionHash } = req.body;
+
+//     if (!status || !['processing', 'completed', 'rejected'].includes(status)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid status',
+//       });
+//     }
+
+//     // Populate user fields for email
+//     const withdrawal = await Withdrawal.findById(req.params.id).populate('user', 'email fullName');
+
+//     if (!withdrawal) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Withdrawal request not found',
+//       });
+//     }
+
+//     // Update withdrawal
+//     withdrawal.status = status;
+//     withdrawal.processedBy = req.user.id;
+//     withdrawal.processedAt = new Date();
+//     withdrawal.adminNote = adminNote || '';
+//     if (transactionHash) {
+//       withdrawal.transactionHash = transactionHash;
+//     }
+//     await withdrawal.save();
+
+//     // If rejected, refund the balance
+//     if (status === 'rejected') {
+//       const user = await User.findById(withdrawal.user._id);
+//       user.wallet.balance += withdrawal.amount;
+//       await user.save();
+//     }
+
+//     // If completed, update totalWithdrawn and SEND EMAIL NOTIFICATION
+//     if (status === 'completed') {
+//       const user = await User.findById(withdrawal.user._id);
+//       user.wallet.totalWithdrawn += withdrawal.amount;
+//       await user.save();
+
+//       // 🟢 Send completion email notification!
+//       if (withdrawal.user.email && withdrawal.user.fullName) {
+//         await sendWithdrawalCompletedEmail(
+//           withdrawal.user.email,
+//           withdrawal.user.fullName,
+//           withdrawal.amount,
+//           withdrawal.method
+//         );
+//         console.log('✅ Withdrawal completion email sent to:', withdrawal.user.email);
+//       } else {
+//         console.error('❌ No email/fullName on user, completion email not sent:', withdrawal.user);
+//       }
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: `Withdrawal ${status} successfully`,
+//       data: withdrawal,
+//     });
+//   } catch (error) {
+//     console.error('Process withdrawal error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error',
+//     });
+//   }
+// };
+
 export const processWithdrawal = async (req, res) => {
   try {
-    const { status, adminNote, transactionHash } = req.body;
+    const { status, adminNote, transactionHash, reason } = req.body;
 
     if (!status || !['processing', 'completed', 'rejected'].includes(status)) {
       return res.status(400).json({
@@ -361,31 +433,35 @@ export const processWithdrawal = async (req, res) => {
     }
     await withdrawal.save();
 
-    // If rejected, refund the balance
+    const user = await User.findById(withdrawal.user._id);
+
+    // If rejected, refund the balance and send rejection email
     if (status === 'rejected') {
-      const user = await User.findById(withdrawal.user._id);
       user.wallet.balance += withdrawal.amount;
       await user.save();
+
+      // Always send rejection email (default message if no reason)
+      await sendWithdrawalRejectedEmail(
+        user.email,
+        user.fullName,
+        withdrawal.amount,
+        withdrawal.method,
+        reason // will be default if missing/empty
+      );
+      console.log('✅ Withdrawal rejection email sent to:', user.email);
     }
 
-    // If completed, update totalWithdrawn and SEND EMAIL NOTIFICATION
+    // If completed, update totalWithdrawn and send completion email
     if (status === 'completed') {
-      const user = await User.findById(withdrawal.user._id);
       user.wallet.totalWithdrawn += withdrawal.amount;
       await user.save();
-
-      // 🟢 Send completion email notification!
-      if (withdrawal.user.email && withdrawal.user.fullName) {
-        await sendWithdrawalCompletedEmail(
-          withdrawal.user.email,
-          withdrawal.user.fullName,
-          withdrawal.amount,
-          withdrawal.method
-        );
-        console.log('✅ Withdrawal completion email sent to:', withdrawal.user.email);
-      } else {
-        console.error('❌ No email/fullName on user, completion email not sent:', withdrawal.user);
-      }
+      await sendWithdrawalCompletedEmail(
+        user.email,
+        user.fullName,
+        withdrawal.amount,
+        withdrawal.method
+      );
+      console.log('✅ Withdrawal completion email sent to:', user.email);
     }
 
     res.status(200).json({
