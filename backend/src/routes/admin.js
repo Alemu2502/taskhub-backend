@@ -13,6 +13,7 @@ import {
   getAllJobs,
   getJobById, 
   getAllUsers,
+  deleteUser,
   changeUserRole 
 } from '../controllers/adminController.js';
 import { protect, isAdmin } from '../middleware/auth.js';
@@ -29,6 +30,8 @@ router.use(isAdmin);
 router.get('/stats', getDashboardStats);
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', changeUserRole);
+router.delete('/users/:id', deleteUser); // Add
+
 // Job Management
 router.get('/jobs', getAllJobs); // <-- THIS FIXES THE 404
 router.post('/jobs', createJob);

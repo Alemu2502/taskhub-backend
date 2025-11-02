@@ -564,6 +564,38 @@ export const changeUserRole = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Delete user (Admin only)
+ * @route   DELETE /api/admin/users/:id
+ * @access  Private/Admin
+ */
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+};
+
+
 export default {
   createJob,
   getAllUsers,
@@ -576,4 +608,5 @@ export default {
   getDashboardStats,
   banUser,
   changeUserRole,
+  deleteUser
 };
