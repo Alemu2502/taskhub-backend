@@ -57,6 +57,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/applications', applicationRoutes);
+
 // API Routes
 app.use('/api', contactRoute);
 app.use('/api/auth', authRoutes);
